@@ -3,10 +3,20 @@
 #include "pico/stdlib.h"
 #include "keyb.h"
 
-int cols[] = {KEYB_PIN_C1, KEYB_PIN_C2, KEYB_PIN_C3, KEYB_PIN_C4, KEYB_PIN_C5, KEYB_PIN_C6};
-int colc = 6;
-int rows[] = {KEYB_PIN_R1, KEYB_PIN_R2, KEYB_PIN_R3, KEYB_PIN_R4, KEYB_PIN_R5};
-int rowc = 5;
+// int cols[] = {KEYB_PIN_C1, KEYB_PIN_C2, KEYB_PIN_C3, KEYB_PIN_C4, KEYB_PIN_C5, KEYB_PIN_C6};
+// int colc = 6;
+// int rows[] = {KEYB_PIN_R1, KEYB_PIN_R2, KEYB_PIN_R3, KEYB_PIN_R4, KEYB_PIN_R5};
+// int rowc = 5;
+
+// int cols[] = {20, 21, 22, 27, 28, 29};
+// int colc = 6;
+// int rows[] = {16, 17, 18, 19};
+// int rowc = 4;
+
+int cols[] = {21, 22, 27, 28, 29};
+int colc = 5;
+int rows[] = {16, 17, 18};
+int rowc = 3;
 
 int shifts[] = {KEYB_SHIFT_UPPER, KEYB_SHIFT_HYPER, KEYB_SHIFT_MEGA, KEYB_SHIFT_SUPER, KEYB_SHIFT_ULTRA, KEYB_SHIFT_EXTRA};
 int shift_mses[] = {KEYB_MS_UPPER, KEYB_MS_HYPER, KEYB_MS_MEGA, KEYB_MS_SUPER, KEYB_MS_ULTRA, KEYB_MS_EXTRA};
@@ -88,30 +98,54 @@ int32_t process_keys() {
 void keyb_init() {
   for (int c = 0; c < colc; c++) {
     gpio_init(cols[c]);
-    gpio_set_dir(cols[c], GPIO_OUT);
+    gpio_set_dir(cols[c], GPIO_IN);
+    gpio_pull_up(cols[c]);
   }
   for (int r = 0; r < rowc; r++) {
     gpio_init(rows[r]);
     gpio_set_dir(rows[r], GPIO_IN);
-    gpio_pull_down(rows[r]);
+    gpio_pull_up(rows[r]);
   }
 }
 
 int32_t keyb_scan() {
-  for (int c = 0; c < colc; c++) {
-    gpio_put(cols[c], 1);
+  for (int r = 0; r < rowc; r++) {
+    gpio_set_dir(rows[r], GPIO_OUT);
+    gpio_put(rows[r], 0);
     sleep_us(1);
-    for (int r = 0; r < rowc; r++) {
-      int key = r * colc + c;
+    for (int c = 0; c < colc; c++) {
+      int key = r * colc * 2 + c;
       if (key_mses[key] >= 0) {
-        if (gpio_get(rows[r])) {
-          key_mses[key]++;
-        } else {
+        if (gpio_get(cols[c])) {
+          // Released
           key_mses[key] = 0 - key_mses[key];
+        } else {
+          // Press
+          key_mses[key]++;
         }
       }
     }
+    gpio_set_dir(rows[r], GPIO_IN);
+    gpio_pull_up(rows[r]);
+  }
+  for (int c = 0; c < colc; c++) {
+    gpio_set_dir(cols[c], GPIO_OUT);
     gpio_put(cols[c], 0);
+    sleep_us(1);
+    for (int r = 0; r < rowc; r++) {
+      int key = r * colc * 2 + colc + c;
+      if (key_mses[key] >= 0) {
+        if (gpio_get(rows[r])) {
+          // Released
+          key_mses[key] = 0 - key_mses[key];
+        } else {
+          // Press
+          key_mses[key]++;
+        }
+      }
+    }
+    gpio_set_dir(cols[c], GPIO_IN);
+    gpio_pull_up(cols[c]);
   }
   return process_keys();
 }

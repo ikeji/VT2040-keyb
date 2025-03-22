@@ -1,16 +1,16 @@
 // Keyboard row and column pins
 // On Gherkin keyboard these don't correspond to physical rows and columns
-#define KEYB_PIN_R1 7
-#define KEYB_PIN_R2 6
-#define KEYB_PIN_R3 5
-#define KEYB_PIN_R4 4
-#define KEYB_PIN_R5 3
-#define KEYB_PIN_C1 29
-#define KEYB_PIN_C2 28
-#define KEYB_PIN_C3 27
-#define KEYB_PIN_C4 26
-#define KEYB_PIN_C5 15
-#define KEYB_PIN_C6 14
+// #define KEYB_PIN_R1 7
+// #define KEYB_PIN_R2 6
+// #define KEYB_PIN_R3 5
+// #define KEYB_PIN_R4 4
+// #define KEYB_PIN_R5 3
+// #define KEYB_PIN_C1 29
+// #define KEYB_PIN_C2 28
+// #define KEYB_PIN_C3 27
+// #define KEYB_PIN_C4 26
+// #define KEYB_PIN_C5 15
+// #define KEYB_PIN_C6 14
 
 // Timing thresholds (in ms)
 #define KEYB_MS_DEBOUNCE 10
